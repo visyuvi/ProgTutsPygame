@@ -12,6 +12,13 @@ def setup():
 def main():
     done = False
     snowFlakes = []
+    santaImg = p.image.load("images/reinder-image.jpg")  # it returns a Surface object
+    scaleFactor = 0.75
+    santaImg = p.transform.scale(santaImg, (int(santaImg.get_width() * scaleFactor),
+                                            int(santaImg.get_height() * scaleFactor)))  # resize original image to 0.75X
+    # santaImg = p.transform.scale(santaImg, (screen.get_width(),screen.get_height()*0.75))  # set image to size (screen_width , 0.75 * screen_height)
+    santaX = -santaImg.get_width()
+    santaVX = 30
     for i in range(500):
         x = random.randint(0, screen.get_width())
         y = random.randint(0, screen.get_height())
@@ -24,8 +31,19 @@ def main():
         for e in p.event.get():
             if e.type == p.QUIT or (e.type == p.KEYDOWN and e.key == p.K_ESCAPE):
                 done = True
+        screen.blit(santaImg, (santaX, 100))
+        if (santaX > screen.get_width() and santaVX > 0) or (santaX < -santaImg.get_width() and santaVX< 0):
 
-        p.draw.rect(screen, p.Color("snow"), p.Rect(0, 0.75 * screen.get_height(), screen.get_width(), 0.25 * screen.get_height()))
+            santaVX = -santaVX
+            santaImg = p.transform.flip(santaImg, True, False)
+            scaleFactor = 0.8
+            santaImg = p.transform.scale(santaImg, (int(santaImg.get_width() * scaleFactor),
+                                                    int(santaImg.get_height() * scaleFactor)))  # resize original image to 0.75X
+
+        santaX += santaVX
+
+        p.draw.rect(screen, p.Color("snow"),
+                    p.Rect(0, 0.75 * screen.get_height(), screen.get_width(), 0.25 * screen.get_height()))
         for i in range(len(snowFlakes)):
             snowFlake = snowFlakes[i]
             snowFlakes[i] = (snowFlake[0] + random.randint(-1, 1), snowFlake[1] + random.randint(1, 4), snowFlake[2])
