@@ -113,6 +113,9 @@ class Enemy:
             else:
                 self.vel = self.vel * -1
                 self.walkCount = 0
+    def hit(self):
+        print("hit")
+        pass
 
 
 def redrawGameWindow():
@@ -138,6 +141,13 @@ while run:
             run = False
 
     for bullet in bullets:
+        # check if bullet is in the y range of goblin hitbox
+        if bullet.y - bullet.radius < goblin.hitbox[1] + goblin.hitbox[3] and bullet.y + bullet.radius > goblin.hitbox[1]:
+            # check if bullet is in x range of the goblin hitbox
+            if bullet.x + bullet.radius > goblin.hitbox[0] and bullet.x - bullet.radius < goblin.hitbox[0] + goblin.hitbox[2]:
+                goblin.hit()
+                bullets.pop(bullets.index(bullet))
+
         if screenWidth > bullet.x > 0:
             bullet.x += bullet.vel
         else:
