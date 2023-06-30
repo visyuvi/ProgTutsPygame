@@ -30,19 +30,37 @@ class Player:
         self.left = False
         self.right = False
         self.walkCount = 0
+        self.standing = True
 
     def draw(self):
         if self.walkCount + 1 >= 27:
             self.walkCount = 0
-        if self.left:
-            win.blit(walkLeft[self.walkCount // 3], (self.x, self.y))
-            self.walkCount += 1
-        elif self.right:
-            win.blit(walkRight[self.walkCount // 3], (self.x, self.y))
-            self.walkCount += 1
 
+        if not self.standing:
+            if self.left:
+                win.blit(walkLeft[self.walkCount // 3], (self.x, self.y))
+                self.walkCount += 1
+            elif self.right:
+                win.blit(walkRight[self.walkCount // 3], (self.x, self.y))
+                self.walkCount += 1
         else:
-            win.blit(char, (self.x, self.y))
+            if self.right:
+                win.blit(walkRight[0], (self.x, self.y))
+            else:
+                win.blit(walkLeft[0], (self.x, self.y))
+
+
+class Projectile:
+    def __init__(self, x, y, radius, color, facing):
+        self.x = x
+        self.y = y
+        self.radius = radius
+        self.color = color
+        self.facing = facing
+        self.velocity = 8 * facing
+
+    def draw(self):
+        pygame.draw.circle(win, self.color, self.x, self.y, self.radius)
 
 
 def redrawGameWindow():
@@ -67,21 +85,22 @@ while run:
         man.x -= man.vel
         man.left = True
         man.right = False
+        man.standing = False
     elif keys[pygame.K_RIGHT] and man.x + man.width + man.vel < screenWidth:
         man.x += man.vel
         man.right = True
         man.left = False
+        man.standing = False
     else:
-        man.right = False
-        man.left = False
+        man.standing = True
+        # don't set left and right false so that the man can  look in last direction
         man.walkCount = 0
 
     if not man.isJump:
         #   Removed  "move up and down by using keys UP ang DOWN"
         if keys[pygame.K_SPACE]:
             man.isJump = True
-            man.right = False
-            man.left = False
+            # don't set left and right false so that the man can  look in last direction even while jumping
             man.walkCount = 0
 
     else:
