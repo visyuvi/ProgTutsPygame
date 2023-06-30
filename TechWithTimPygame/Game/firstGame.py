@@ -31,6 +31,7 @@ class Player:
         self.right = False
         self.walkCount = 0
         self.standing = True
+        self.hitbox = (self.x + 17, self.y + 11, 29, 52)
 
     def draw(self):
         if self.walkCount + 1 >= 27:
@@ -48,6 +49,8 @@ class Player:
                 win.blit(walkRight[0], (self.x, self.y))
             else:
                 win.blit(walkLeft[0], (self.x, self.y))
+        self.hitbox = (self.x + 17, self.y + 11, 29, 52)
+        pygame.draw.rect(win, (255, 0, 0), self.hitbox, 2)
 
 
 class Projectile:
@@ -82,18 +85,20 @@ class Enemy:
         self.path = [self.x, self.end]
         self.walkCount = 0
         self.vel = 3
+        self.hitbox = (self.x + 17, self.y + 2, 31, 57)
 
     def draw(self):
         self.move()
         if self.walkCount + 1 > 33:
             self.walkCount = 0
-        print("WC", self.walkCount)
         if self.vel > 0:
-            win.blit(self.walkRight[self.walkCount//3], (self.x, self.y))
+            win.blit(self.walkRight[self.walkCount // 3], (self.x, self.y))
             self.walkCount += 1
         else:
-            win.blit(self.walkLeft[self.walkCount//3], (self.x, self.y))
+            win.blit(self.walkLeft[self.walkCount // 3], (self.x, self.y))
             self.walkCount += 1
+        self.hitbox = (self.x + 17, self.y + 2, 31, 57)
+        pygame.draw.rect(win, (255, 0, 0), self.hitbox, 2)
 
     def move(self):
         if self.vel > 0:  # going right
