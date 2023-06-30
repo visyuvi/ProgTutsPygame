@@ -57,20 +57,24 @@ class Projectile:
         self.radius = radius
         self.color = color
         self.facing = facing
-        self.velocity = 8 * facing
+        self.vel = 8 * facing
 
     def draw(self):
-        pygame.draw.circle(win, self.color, self.x, self.y, self.radius)
+        pygame.draw.circle(win, self.color, (self.x, self.y), self.radius)
 
 
 def redrawGameWindow():
     win.blit(bg, (0, 0))
     man.draw()
+    for bullet in bullets:
+        bullet.draw()
+
     pygame.display.flip()
 
 
 # mainloop
 man = Player(300, 410, 64, 64)
+bullets = []
 run = True
 while run:
     clock.tick(54)
@@ -79,7 +83,22 @@ while run:
         if event.type == pygame.QUIT:
             run = False
 
+    for bullet in bullets:
+        if 500 > bullet.x > 0:
+            bullet.x += bullet.vel
+        else:
+            bullets.pop(bullets.index(bullet))
+
     keys = pygame.key.get_pressed()
+
+    if keys[pygame.K_SPACE]:
+        if man.right:
+            facing = 1
+        else:
+            facing = -1
+        if (len(bullets)) < 5:
+            bullets.append(
+                Projectile(round(man.x + man.width // 2), round(man.y + man.height // 2), 6, (0, 0, 0), facing))
 
     if keys[pygame.K_LEFT] and man.x > man.vel:
         man.x -= man.vel
@@ -98,7 +117,7 @@ while run:
 
     if not man.isJump:
         #   Removed  "move up and down by using keys UP ang DOWN"
-        if keys[pygame.K_SPACE]:
+        if keys[pygame.K_UP]:
             man.isJump = True
             # don't set left and right false so that the man can  look in last direction even while jumping
             man.walkCount = 0
