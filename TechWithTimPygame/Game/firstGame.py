@@ -16,6 +16,14 @@ bg = pygame.image.load('bg.jpg')
 char = pygame.image.load('standing.png')
 
 clock = pygame.time.Clock()
+
+bulletSound = pygame.mixer.Sound('bullet.wav')
+hitSound = pygame.mixer.Sound('hit.wav')
+bulletSound.play()
+
+pygame.mixer.music.load('music.mp3')
+pygame.mixer.music.play(-1)
+
 score = 0
 
 
@@ -53,6 +61,22 @@ class Player:
         self.hitbox = (self.x + 17, self.y + 11, 29, 52)
         # commented drawing of hitbox
         # pygame.draw.rect(win, (255, 0, 0), self.hitbox, 2)
+
+    def hit(self):  # when player gets collided with the goblin
+        self.x = 60
+        self.walkCount = 0
+        font1 = pygame.font.SysFont('comicsans', 100)
+        text = font1.render('-5', 1, (255, 0, 0))
+        win.blit(text, (screenWidth / 2 - (text.get_width() / 2), screenHeight/2 - text.get_height() / 2))
+        pygame.display.flip()
+        i = 0
+        while i < 300:
+            pygame.time.delay(10)
+            i += 1
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    i = 301
+                    pygame.quit()
 
 
 class Projectile:
@@ -142,7 +166,6 @@ def redrawGameWindow():
     goblin.draw()
     for bullet in bullets:
         bullet.draw()
-
     pygame.display.flip()
 
 
@@ -156,6 +179,13 @@ run = True
 while run:
     clock.tick(27)
 
+    if man.hitbox[1] < goblin.hitbox[1] + goblin.hitbox[3] and man.hitbox[1] + man.hitbox[3] > goblin.hitbox[1]:
+        # check if bullet is in x range of the goblin hitbox
+        if man.hitbox[0] + man.hitbox[2] > goblin.hitbox[0] and man.hitbox[0] < goblin.hitbox[0] + goblin.hitbox[2]:
+            if goblin.visible:
+                man.hit()
+                score -= 5
+
     if shootLoop > 0:
         shootLoop += 1
     if shootLoop > 3:
@@ -167,12 +197,12 @@ while run:
 
     for bullet in bullets:
         # check if bullet is in the y range of goblin hitbox
-        if bullet.y - bullet.radius < goblin.hitbox[1] + goblin.hitbox[3] and bullet.y + bullet.radius > goblin.hitbox[
-            1]:
+        if bullet.y - bullet.radius < goblin.hitbox[1] + goblin.hitbox[3] and bullet.y + bullet.radius > goblin.hitbox[1]:
             # check if bullet is in x range of the goblin hitbox
             if bullet.x + bullet.radius > goblin.hitbox[0] and bullet.x - bullet.radius < goblin.hitbox[0] + \
                     goblin.hitbox[2]:
                 if goblin.visible:
+                    hitSound.play()
                     goblin.hit()
                     score += 1
                     bullets.pop(bullets.index(bullet))
@@ -185,6 +215,7 @@ while run:
     keys = pygame.key.get_pressed()
 
     if keys[pygame.K_SPACE] and shootLoop == 0:
+        bulletSound.play()
         if man.right:
             facing = 1
         else:
